@@ -112,18 +112,15 @@ def create_data_generators(args):
               horizontal_flip=True,
               vertical_flip=False)
     val_datagen  = ImageDataGenerator(preprocessing_function=preprocess_input)
-    test_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 
     train_gen = train_datagen.flow_from_directory('/opt/ml/input/data/train',
                                                   target_size=(HEIGHT, WIDTH), 
                                                   batch_size=args.batch_size)
-    test_gen = train_datagen.flow_from_directory('/opt/ml/input/data/test',
-                                                  target_size=(HEIGHT, WIDTH), 
-                                                  batch_size=args.batch_size)
+    
     val_gen = train_datagen.flow_from_directory('/opt/ml/input/data/validation',
                                                   target_size=(HEIGHT, WIDTH), 
                                                   batch_size=args.batch_size)
-    return train_gen, test_gen, val_gen
+    return train_gen, val_gen
 
 def save_model_artifacts(model, model_dir):
     print(f'Saving model to {model_dir}...')
@@ -154,7 +151,7 @@ def main(args):
     
     # Create data generators for feeding training and evaluation based on data provided to us
     # by the SageMaker TensorFlow container
-    train_gen, test_gen, val_gen = create_data_generators(args)
+    train_gen, val_gen = create_data_generators(args)
 
     base_model = MobileNetV2(weights='imagenet', 
                           include_top=False, 
@@ -256,7 +253,6 @@ if __name__=='__main__':
     # input data and model directories
     parser.add_argument('--model_dir', type=str)
     parser.add_argument('--train', type=str, default=os.environ.get('SM_CHANNEL_TRAIN'))
-    parser.add_argument('--test', type=str, default=os.environ.get('SM_CHANNEL_TEST'))
     parser.add_argument('--validation', type=str, default=os.environ.get('SM_CHANNEL_VALIDATION'))
     parser.add_argument('--current-host', type=str, default=os.environ.get('SM_CURRENT_HOST'))
     parser.add_argument('--hosts', type=list, default=json.loads(os.environ.get('SM_HOSTS')))

@@ -61,7 +61,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-file", type=str, default="model.tar.gz")
     args, _ = parser.parse_known_args()
 
-    logger.debug("Extracting the model")
+    logger.info("Extracting the model")
 
     model_file = os.path.join(model_path, args.model_file)
     file = tarfile.open(model_file)
@@ -69,11 +69,11 @@ if __name__ == "__main__":
 
     file.close()
 
-    logger.debug("Load model")
+    logger.info("Load model")
 
     model = keras.models.load_model("{}/1".format(model_path))
 
-    logger.debug("Starting evaluation.")
+    logger.info("Starting evaluation.")
     
     # load test data.  this should be an argument
     df = pd.read_csv(manifest_path)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     
     class_name = pd.Series(df['class_name'].values,index=df['class_id']).to_dict()
     
-    logger.debug('Testing {} images'.format(df.shape[0]))
+    logger.info('Testing {} images'.format(df.shape[0]))
     num_errors = 0
     preds = []
     acts  = []
@@ -97,8 +97,8 @@ if __name__ == "__main__":
         preds.append(pred)
         if (pred != act):
             num_errors += 1
-            logger.debug('ERROR on image index {} -- Pred: {} {:.2f}, Actual: {}'.format(i, 
-                                                                   class_name_list[pred], conf, 
+            logger.info('ERROR on image index {} -- Pred: {} {:.2f}, Actual: {}'.format(i,
+                                                                   class_name_list[pred], conf,
                                                                    class_name_list[act]))
     precision = precision_score(acts, preds, average='micro')
     recall = recall_score(acts, preds, average='micro')
@@ -106,13 +106,13 @@ if __name__ == "__main__":
     cnf_matrix = confusion_matrix(acts, preds, labels=range(len(class_name_list)))
     f1 = f1_score(acts, preds, average='micro')
     
-    logger.debug("Accuracy: {}".format(accuracy))
-    logger.debug("Precision: {}".format(precision))
-    logger.debug("Recall: {}".format(recall))
-    logger.debug("Confusion matrix: {}".format(cnf_matrix))
-    logger.debug("F1 score: {}".format(f1))
+    logger.info("Accuracy: {}".format(accuracy))
+    logger.info("Precision: {}".format(precision))
+    logger.info("Recall: {}".format(recall))
+    logger.info("Confusion matrix: {}".format(cnf_matrix))
+    logger.info("F1 score: {}".format(f1))
     
-    logger.debug(cnf_matrix)
+    logger.info(cnf_matrix)
     
     matrix_output = dict()
     
